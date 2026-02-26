@@ -1,3 +1,5 @@
-./input
-./output
-./tes
+input/
+output/
+tes/
+__pycache__/
+
