@@ -3,6 +3,20 @@ import json
 import math
 import numpy as np
 import config
+import pymupdf
+import fitz
+
+def load_pdf_as_surface(pdf_path, page_number=0, scale=1.0):
+    doc=fitz.open(pdf_path)
+    page=doc.load_page(page_number)
+    mat=fitz.Matrix(scale, scale)
+    pix=page.get_pixmap(matrix=mat,alpha=False)
+    img_surface=pygame.image.frombytes(
+        pix.samples, [pix.width, pix.height], "RGB"
+    )
+
+    doc.close()
+    return img_surface
 
 
 def draw_panels(screen, data,scale):

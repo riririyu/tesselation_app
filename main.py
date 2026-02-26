@@ -1,12 +1,14 @@
 import pygame
 import json
-import math
+import pygame_gui
 import config
 import tile
 import util
 import import_pattern
 from pathlib import Path
 import numpy as np
+from input_hundler import InputHandler 
+handler = InputHandler()
 
 def main():
     print(type(config.JSONPATH))
@@ -19,63 +21,75 @@ def main():
     import_pattern.unify_edge_data(data["panels"])
 
     pygame.init()
-    screen = pygame.display.set_mode(config.SCREEN_SIZE)
-    under_lay = pygame.Surface(config.SCREEN_SIZE)
-    under_lay.fill((255,255,255))
-    import_pattern.draw_panels(under_lay, data,config.PATTERN_SCALE)
-    tiles=[tile.HexTile(200,200,config.TILE_SIZE) for i in range(200)]
-    spawner_tiles=[]
-    need_update=False
+    screen = pygame.display.set_mode(config.SCREEN_SIZE,pygame.RESIZABLE)
+    manager = pygame_gui.UIManager(config.SCREEN_SIZE)
+
+    save_btn=pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect(config.SAVE_BUTTON_POS, config.BUTTON_SIZE),
+        text="SAVE",
+        manager=manager
+    )
+
+    load_btn=pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect(config.LOAD_BUTTON_POS, config.BUTTON_SIZE),
+        text="LOAD",
+        manager=manager
+    )
+    under_lay_original = import_pattern.load_pdf_as_surface(config.PDF_PATH, 0,scale=2.0)
+    under_lay = pygame.transform.smoothscale(under_lay_original, config.SCREEN_SIZE)
+    
+    tiles = util.create_grid(config.SCREEN_SIZE[1], config.SCREEN_SIZE[0], config.TILE_SIZE, tile.HexTile)
 
     selected_tile = None
-    offset_x, offset_y =0,0
     running = True
     clock = pygame.time.Clock()
     while running:
+        time_delta=clock.tick(60)/1000.0
 
-        screen.fill((255,255,255))
-        screen.blit(under_lay, (0, 0))
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                for t in reversed(tiles):
-                    if t.is_clicked(event.pos):
-                        selected_tile = t
-                        break
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if selected_tile:
-                    for other in tiles:
-                        if other !=selected_tile:
-                            if selected_tile.snap_to_grid(other):
-                                break
-                selected_tile = None
-            
-            elif event.type== pygame.MOUSEMOTION:
-                if selected_tile:
-                    selected_tile.move(event.rel[0], event.rel[1])
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_s:
-                    util.export_to_dxf("puzzle.dxf",screen,tiles)
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button ==4:
-                    print("Mouse wheel up")
-                    scale*=1.1
-                    need_update=True
-                elif event.button ==5:
-                    print("Mouse wheel down")
-                    scale*=0.9
-                    need_update=True
-        if need_update:
-            print("Updating pattern with scale:", scale)
-            import_pattern.draw_panels(under_lay, data,scale)
 
+            if event.type==pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == save_btn:
+                    util.save_data("data.json",tiles)
+                    print("Save button pressed")
+                elif event.ui_element == load_btn:
+                    loaded_coords=util.load_data("data.json")
+                    for t in tiles:
+                        t.is_active = False
+                    for coord in loaded_coords:
+                        for t in tiles:
+                            if t.center[0] == coord["x"] and t.center[1] == coord["y"]:
+                                t.is_active = True
+                                break
+
+                    
+                    print("Load button pressed")
+            if event.type==pygame.VIDEORESIZE:
+                new_size=event.size
+                screen = pygame.display.set_mode(new_size, pygame.RESIZABLE)
+                manager.set_window_resolution(new_size)
+                under_lay = pygame.Surface(new_size)
+                under_lay.fill((255,255,255))
+                import_pattern.draw_panels(under_lay, data,config.PATTERN_SCALE)
+
+            
+            manager.process_events(event)
+            handler.handle_event( event, tiles,screen)
+
+
+            
+        manager.update(time_delta)
+
+        screen.fill((255,255,255))
+        screen.blit(under_lay, (0, 0))
         for t in tiles:
             t.draw(screen)
+        manager.draw_ui(screen)
         pygame.display.flip()
-        clock.tick(60)
     pygame.quit()
 
 if __name__ == "__main__":
