@@ -1,5 +1,10 @@
 import pygame
 import util
+import tkinter as tk
+from tkinter import filedialog
+
+root= tk.Tk()
+root.withdraw() 
 
 class InputHandler:
     def __init__(self):
@@ -10,12 +15,15 @@ class InputHandler:
         mods=pygame.key.get_mods()
         is_ctrl_pressed=mods & pygame.KMOD_CTRL
 
+
         if event.type == pygame.KEYDOWN:
             if event.key==pygame.K_r:
                 self._clear_all_tiles(tiles)
             if event.key == pygame.K_s:
-                util.export_to_dxf("puzzle.dxf",screen,tiles)
-                util.save_as_svg("puzzle.svg",tiles)
+                directory_name =tiles[0].__class__.__name__.lower()
+                import os
+                directory_path=os.path.join(util.OUTPUT_DIR, directory_name)
+                util.save_as_svg(directory_path, tiles)
             if pygame.K_0 <= event.key <= pygame.K_9:
                 self.current_type = event.key - pygame.K_0
 

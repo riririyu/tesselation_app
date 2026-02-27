@@ -7,6 +7,7 @@ import math
 import config
 
 DATA_TO_LOAD = CURRENT_DIR/"data.json"
+OUTPUT_DIR = CURRENT_DIR/"output"
 
 def export_to_dxf(filename,screen,tiles):
     doc = ezdxf.new("R2010")
@@ -19,21 +20,27 @@ def export_to_dxf(filename,screen,tiles):
     pygame.image.save(screen,"puzzle.png")
     print("Saved puzzle image as puzzle.png")
 
-def save_as_svg(filename, tiles):
-    dwg=svgwrite.Drawing(filename, profile='tiny',size=(config.SCREEN_SIZE[0], config.SCREEN_SIZE[1]))
-    for i in range(config.num_Type):
-        for t in tiles:
-            if t.type==i:
-                vertices=[(int(p[0]), int(p[1])) for p in t.points]
-                print(vertices)
-                dwg.add(dwg.polygon(points=vertices,
-                            fill="#FFFFFF",
-                            stroke='black',
-                            stroke_width=1
-                            ))
+def save_as_svg(directory_path, tiles):
+    import os
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+    
+    for i in range(1,config.num_Type+1):
+        type_tiles=[t for t in tiles if t.type == i]
+        if not type_tiles:
+            continue
+        file_name = os.path.join(directory_path, f"{i}.svg")
+        dwg=svgwrite.Drawing(file_name, profile='tiny',size=(config.SCREEN_SIZE[0], config.SCREEN_SIZE[1]))
+        for t in type_tiles:
+            vertices=[(int(p[0]), int(p[1])) for p in t.points]
+            dwg.add(dwg.polygon(points=vertices,
+                        fill="#FFFFFF",
+                        stroke='black',
+                        stroke_width=1
+                        ))
     
         dwg.save()
-        print(f"SVG file saved as {filename}")
+        print(f"SVG file saved as {file_name}")
 
 def save_data(filename, tiles):
     data=[]
