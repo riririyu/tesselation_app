@@ -2,7 +2,7 @@ import pygame
 import math
 import config
 
-TILE_SIZE = config.TILE_SIZE
+TILE_SIZE = config.TILE_SIZE_PIX
 TILE_COLOR = config.TILE_COLOR
 LINE_COLOR = config.LINE_COLOR
 

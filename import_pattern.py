@@ -1,10 +1,12 @@
 import pygame
-import json
 import math
 import numpy as np
 import config
-import pymupdf
 import fitz
+import xml.etree.ElementTree as ET
+
+
+
 
 def load_pdf_as_surface(pdf_path, page_number=0, scale=1.0):
     doc=fitz.open(pdf_path)
@@ -18,7 +20,33 @@ def load_pdf_as_surface(pdf_path, page_number=0, scale=1.0):
     doc.close()
     return img_surface
 
+def load_svg_as_surface_with_scale(svg_path):
 
+    doc=fitz.open(svg_path)
+    page=doc.load_page(0)
+    scale_factor=(config.PIXEL_PER_CM*2.54)/72
+    mat=fitz.Matrix(scale_factor, scale_factor)
+    pix=page.get_pixmap(matrix=mat,alpha=False)
+    img_surface=pygame.image.frombytes(
+        pix.samples, [pix.width, pix.height], "RGB"
+    )
+    doc.close()
+    return img_surface
+
+def get_svg_dimensions(file_path):
+    # XMLを解析
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+
+    # root（<svg>タグ）から属性を取得
+    width_str = root.get('width')
+    height_str = root.get('height')
+    # viewbox_str = root.get('viewBox')
+
+    width = float(width_str.replace("cm", ""))
+    height = float(height_str.replace("cm", ""))
+
+    return width, height
 def draw_panels(screen, data,scale):
     num_panel=len(data["panels"])
     for i,(panel_name, panel_data) in enumerate(data["panels"].items()):

@@ -72,3 +72,13 @@ def create_grid(width, height, tile_size,Tile):
                 y += h_step / 2
             tiles.append(Tile(x, y, tile_size))
     return tiles
+def draw_calibration_ruler(screen):
+    ruler_length_cm=config.TILE_SIZE_CM
+    pixel_length = ruler_length_cm * config.PIXEL_PER_CM
+    start_pos = (10, config.SCREEN_SIZE[1] - 20)
+    end_pos=(10 + pixel_length, config.SCREEN_SIZE[1] - 20
+             )
+    pygame.draw.line(screen, (0, 0, 0), start_pos, end_pos, 2)
+    font = pygame.font.Font(None, 24)
+    img = font.render(f"the size of circumcircle:{ruler_length_cm} cm", True, (0, 0, 0))
+    screen.blit(img, (start_pos[0], start_pos[1]))

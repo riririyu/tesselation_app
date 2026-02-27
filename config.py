@@ -4,6 +4,7 @@ import pygame
 CURRENT_DIR = Path(__file__).parent
 JSONPATH = Path(CURRENT_DIR / "input" / "pattern" / "Dress.json")
 PDF_PATH = Path(CURRENT_DIR / "input" / "pattern" / "Dress.pdf")
+SVG_PATH = Path(CURRENT_DIR / "input" / "pattern" / "Dress.svg")
 num_Type = 10
 LINE_COLOR = (0, 0, 0)
 TILE_COLOR = {
@@ -19,9 +20,13 @@ TILE_COLOR = {
     9: "#A52A2A",  # 茶色 (Brown)
 }
 
-TILE_SIZE = 20
+PIXEL_PER_CM=10.0
+TILE_SIZE_CM = 2.5
+TILE_SIZE_PIX = float(TILE_SIZE_CM * PIXEL_PER_CM)
+
 SCREEN_SIZE = (3600, 1600)
-PATTERN_SCALE = 5.0
+# PATTERN_SCALE = 5.0
+
 
 UI_PANEL_HEIGHT = 60
 SAVE_BUTTON_POS = (10, 10)
