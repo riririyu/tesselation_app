@@ -4,6 +4,7 @@ import pygame_gui
 import config
 import tile
 import util
+import math
 import import_pattern
 from pathlib import Path
 import numpy as np
@@ -57,17 +58,22 @@ def main():
                     util.save_data("data.json",tiles)
                     print("Save button pressed")
                 elif event.ui_element == load_btn:
+                    print("Load button pressed")
                     loaded_coords=util.load_data("data.json")
                     for t in tiles:
                         t.is_active = False
                     for coord in loaded_coords:
+                        print("searching tiles for:", coord)
                         for t in tiles:
-                            if t.center[0] == coord["x"] and t.center[1] == coord["y"]:
+                            p1=(coord["x"],coord["y"])
+                            p2=(t.center[0], t.center[1])
+                            distance =math.dist(p1,p2)
+                            if distance<config.TILE_SIZE*0.2:
                                 t.is_active = True
+                                print("Activated tile at:", t.center)
                                 break
 
                     
-                    print("Load button pressed")
             if event.type==pygame.VIDEORESIZE:
                 new_size=event.size
                 screen = pygame.display.set_mode(new_size, pygame.RESIZABLE)

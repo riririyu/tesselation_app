@@ -33,7 +33,10 @@ def save_as_svg(filename, tiles):
     print(f"SVG file saved as {filename}")
 
 def save_data(filename, tiles):
-    data=[{"x":t.center[0], "y":t.center[1]} for t in tiles]
+    data=[]
+    for t in tiles:
+        if t.is_active:
+            data.append({"x": t.center[0], "y": t.center[1]})
     with open(filename,"w")as f:
         json.dump(data,f,indent=4)
     print(f"Data saved as {filename}")
