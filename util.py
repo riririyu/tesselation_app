@@ -4,6 +4,7 @@ from config import CURRENT_DIR
 import svgwrite
 import json
 import math
+import config
 
 DATA_TO_LOAD = CURRENT_DIR/"data.json"
 
@@ -19,24 +20,26 @@ def export_to_dxf(filename,screen,tiles):
     print("Saved puzzle image as puzzle.png")
 
 def save_as_svg(filename, tiles):
-    dwg=svgwrite.Drawing(filename, profile='tiny')
-
-    for t in tiles:
-        vertices=[(int(p[0]), int(p[1])) for p in t.points]
-        dwg.add(dwg.polygon(points=vertices,
-                            fill=None,
+    dwg=svgwrite.Drawing(filename, profile='tiny',size=(config.SCREEN_SIZE[0], config.SCREEN_SIZE[1]))
+    for i in range(config.num_Type):
+        for t in tiles:
+            if t.type==i:
+                vertices=[(int(p[0]), int(p[1])) for p in t.points]
+                print(vertices)
+                dwg.add(dwg.polygon(points=vertices,
+                            fill="#FFFFFF",
                             stroke='black',
                             stroke_width=1
                             ))
     
-    dwg.save()
-    print(f"SVG file saved as {filename}")
+        dwg.save()
+        print(f"SVG file saved as {filename}")
 
 def save_data(filename, tiles):
     data=[]
     for t in tiles:
-        if t.is_active:
-            data.append({"x": t.center[0], "y": t.center[1]})
+        if t.type is not None:
+            data.append({"x": t.center[0], "y": t.center[1], "type": t.type})
     with open(filename,"w")as f:
         json.dump(data,f,indent=4)
     print(f"Data saved as {filename}")
