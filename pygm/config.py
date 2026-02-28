@@ -1,10 +1,16 @@
 from pathlib import Path
 import pygame
 
+PARENT_DIR = Path(__file__).parent.parent
 CURRENT_DIR = Path(__file__).parent
-JSONPATH = Path(CURRENT_DIR / "input" / "pattern" / "Dress.json")
-PDF_PATH = Path(CURRENT_DIR / "input" / "pattern" / "Dress.pdf")
-SVG_PATH = Path(CURRENT_DIR / "input" / "pattern" / "Dress.svg")
+JSONPATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.json")
+PDF_PATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.pdf")
+SVG_PATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.svg")
+
+SAVED_DATA_PATH = Path(CURRENT_DIR / "data.json")
+OUTPUT_DIR = Path(PARENT_DIR / "output")
+
+
 num_Type = 10
 LINE_COLOR = (0, 0, 0)
 TILE_COLOR = {
@@ -28,22 +34,8 @@ SCREEN_SIZE = (3600, 1600)
 # PATTERN_SCALE = 5.0
 
 
-UI_PANEL_HEIGHT = 60
-SAVE_BUTTON_POS = (10, 10)
-LOAD_BUTTON_POS = (120, 10)
+UI_PANEL_HEIGHT = 100
 BUTTON_SIZE = (100, 40)
 
-button_width = 80
-button_height = 30
-SAVE_BUTTON_RECT = pygame.Rect(
-    int(SCREEN_SIZE[0] * 0.5 - button_width // 2),
-    int(SCREEN_SIZE[1] * 0.1),
-    button_width,
-    button_height,
-)
-LOAD_BUTTON_RECT = pygame.Rect(
-    int(SCREEN_SIZE[0] * 0.5 - button_width // 2),
-    int(SCREEN_SIZE[1] * 0.2),
-    button_width,
-    button_height,
-)
+button_space_width = 1.5*BUTTON_SIZE[0]
+button_space_height = 1.5*BUTTON_SIZE[1]

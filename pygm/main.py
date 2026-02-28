@@ -30,22 +30,21 @@ def main():
     manager = pygame_gui.UIManager(config.SCREEN_SIZE)
 
     save_btn = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect(config.SAVE_BUTTON_POS, config.BUTTON_SIZE),
+        relative_rect=util.SAVE_BUTTON_RECT,
         text="SAVE",
         manager=manager,
     )
 
     load_btn = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect(config.LOAD_BUTTON_POS, config.BUTTON_SIZE),
+        relative_rect=util.LOAD_BUTTON_RECT,
         text="LOAD",
         manager=manager,
     )
-    # under_lay=pygame.Surface(config.SCREEN_SIZE)
-    # under_lay. fill((255,255,255))
+
     under_lay = import_pattern.load_svg_as_surface_with_scale(config.SVG_PATH)
 
     tiles = util.create_grid(
-        config.SCREEN_SIZE[1], config.SCREEN_SIZE[0], config.TILE_SIZE_PIX, tile.HexTile
+        config.SCREEN_SIZE[1]-config.UI_PANEL_HEIGHT, config.SCREEN_SIZE[0], config.TILE_SIZE_PIX, tile.HexTile
     )
 
     selected_tile = None
@@ -74,21 +73,13 @@ def main():
                                 t.type = coord["type"]
                                 break
 
-            if event.type == pygame.VIDEORESIZE:
-                new_size = event.size
-                # screen = pygame.display.set_mode(new_size, pygame.RESIZABLE)
-                # manager.set_window_resolution(new_size)
-                # under_lay = pygame.Surface(new_size)
-                # under_lay.fill((255,255,255))
-                # import_pattern.draw_panels(under_lay, data,config.PATTERN_SCALE)
-
             manager.process_events(event)
             handler.handle_event(event, tiles, screen)
 
         manager.update(time_delta)
 
-        screen.fill((255, 255, 255))#draw background
-        screen.blit(under_lay, (0, 0))#draw underlay
+        screen.fill((255, 255, 255))  # draw background
+        screen.blit(under_lay, (0, 0))  # draw underlay
         for t in tiles:
             t.draw(screen)
         manager.draw_ui(screen)
