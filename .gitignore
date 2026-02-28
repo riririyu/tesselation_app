@@ -2,5 +2,9 @@ input/
 output/
 tes/
 __pycache__/
+blnd_API/
+gen_smpl/models
+pygm/*.json
+
 
 

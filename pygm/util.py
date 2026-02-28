@@ -37,7 +37,7 @@ def save_as_svg(directory_path, tiles):
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
-    for i in range(1, config.num_Type + 1):
+    for i in range(1, config.NUM_TYPE + 1):
         type_tiles = [t for t in tiles if t.type == i]
         if not type_tiles:
             continue

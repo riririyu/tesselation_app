@@ -2,6 +2,7 @@ import pygame
 import util
 import tkinter as tk
 from tkinter import filedialog
+from config import SVG_OUTPUT_DIR
 
 root= tk.Tk()
 root.withdraw() 
@@ -22,7 +23,7 @@ class InputHandler:
             if event.key == pygame.K_s:
                 directory_name =tiles[0].__class__.__name__.lower()
                 import os
-                directory_path=os.path.join(util.OUTPUT_DIR, directory_name)
+                directory_path=os.path.join(SVG_OUTPUT_DIR, directory_name)
                 util.save_as_svg(directory_path, tiles)
             if pygame.K_0 <= event.key <= pygame.K_9:
                 self.current_type = event.key - pygame.K_0

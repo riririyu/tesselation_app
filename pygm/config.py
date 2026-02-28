@@ -3,15 +3,17 @@ import pygame
 
 PARENT_DIR = Path(__file__).parent.parent
 CURRENT_DIR = Path(__file__).parent
+
+# input
 JSONPATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.json")
 PDF_PATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.pdf")
 SVG_PATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.svg")
-
+# output 
 SAVED_DATA_PATH = Path(CURRENT_DIR / "data.json")
-OUTPUT_DIR = Path(PARENT_DIR / "output")
+SVG_OUTPUT_DIR = Path(PARENT_DIR / "svg_output")
 
-
-num_Type = 10
+# Tile setting
+NUM_TYPE = 10
 LINE_COLOR = (0, 0, 0)
 TILE_COLOR = {
     0: "#FFFFFFC2",
@@ -26,6 +28,7 @@ TILE_COLOR = {
     9: "#A52A2A",  # 茶色 (Brown)
 }
 
+# scale setting
 PIXEL_PER_CM=10.0
 TILE_SIZE_CM = 2.5
 TILE_SIZE_PIX = float(TILE_SIZE_CM * PIXEL_PER_CM)
@@ -33,7 +36,7 @@ TILE_SIZE_PIX = float(TILE_SIZE_CM * PIXEL_PER_CM)
 SCREEN_SIZE = (3600, 1600)
 # PATTERN_SCALE = 5.0
 
-
+# UI setting
 UI_PANEL_HEIGHT = 100
 BUTTON_SIZE = (100, 40)
 
