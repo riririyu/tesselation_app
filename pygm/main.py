@@ -26,17 +26,31 @@ def main():
     import_pattern.unify_edge_data(data["panels"])
 
     pygame.init()
-    screen = pygame.display.set_mode(config.SCREEN_SIZE, pygame.RESIZABLE)
-    manager = pygame_gui.UIManager(config.SCREEN_SIZE)
+    w, h = util.get_svg_dimensions(config.SVG_PATH, mode="float")
+    SCREEN_SIZE=(config.SCREEN_SIZE_WIDTH, int(config.SCREEN_SIZE_WIDTH * h / w))
 
+    screen = pygame.display.set_mode(SCREEN_SIZE, pygame.RESIZABLE)
+    manager = pygame_gui.UIManager(SCREEN_SIZE)
+    SAVE_BUTTON_RECT = pygame.Rect(
+    int(config.button_space_width /2),
+    int(SCREEN_SIZE[1] -config.UI_PANEL_HEIGHT + config.button_space_height // 2),
+    config.BUTTON_SIZE[0],
+    config.BUTTON_SIZE[1]
+    )
+    LOAD_BUTTON_RECT = pygame.Rect(
+    int(config.button_space_width /2 + config.button_space_width),
+    int(SCREEN_SIZE[1] -config.UI_PANEL_HEIGHT + config.button_space_height // 2),
+    config.BUTTON_SIZE[0],
+    config.BUTTON_SIZE[1]
+    )
     save_btn = pygame_gui.elements.UIButton(
-        relative_rect=util.SAVE_BUTTON_RECT,
+        relative_rect=SAVE_BUTTON_RECT,
         text="SAVE",
         manager=manager,
     )
 
     load_btn = pygame_gui.elements.UIButton(
-        relative_rect=util.LOAD_BUTTON_RECT,
+        relative_rect=LOAD_BUTTON_RECT,
         text="LOAD",
         manager=manager,
     )
@@ -44,7 +58,7 @@ def main():
     under_lay = import_pattern.load_svg_as_surface_with_scale(config.SVG_PATH)
 
     tiles = util.create_grid(
-        config.SCREEN_SIZE[1]-config.UI_PANEL_HEIGHT, config.SCREEN_SIZE[0], config.TILE_SIZE_PIX, tile.HexTile
+        SCREEN_SIZE[1]-config.UI_PANEL_HEIGHT, SCREEN_SIZE[0], config.TILE_SIZE_PIX, tile.HexTile
     )
 
     selected_tile = None
@@ -83,7 +97,7 @@ def main():
         for t in tiles:
             t.draw(screen)
         manager.draw_ui(screen)
-        util.draw_calibration_ruler(screen)
+        util.draw_calibration_ruler(screen, SCREEN_SIZE)
         pygame.display.flip()
     pygame.quit()
 

@@ -4,20 +4,8 @@ import config
 import svgwrite
 import json
 import math
-import config
+import xml.etree.ElementTree as ET
 
-SAVE_BUTTON_RECT = pygame.Rect(
-    int(config.button_space_width /2),
-    int(config.SCREEN_SIZE[1] -config.UI_PANEL_HEIGHT + config.button_space_height // 2),
-    config.BUTTON_SIZE[0],
-    config.BUTTON_SIZE[1]
-)
-LOAD_BUTTON_RECT = pygame.Rect(
-    int(config.button_space_width /2 + config.button_space_width),
-    int(config.SCREEN_SIZE[1] -config.UI_PANEL_HEIGHT + config.button_space_height // 2),
-    config.BUTTON_SIZE[0],
-    config.BUTTON_SIZE[1]
-)
 
 def export_to_dxf(filename, screen, tiles):
     doc = ezdxf.new("R2010")
@@ -31,7 +19,24 @@ def export_to_dxf(filename, screen, tiles):
     print("Saved puzzle image as puzzle.png")
 
 
-def save_as_svg(directory_path, tiles):
+def get_svg_dimensions(file_path, mode: str):
+    # XMLを解析
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+
+    # root（<svg>タグ）から属性を取得
+    width_str = root.get("width")
+    height_str = root.get("height")
+    # viewbox_str = root.get('viewBox')
+    if mode == "str":
+        return width_str, height_str
+    elif mode == "float":
+        width = float(width_str.replace("cm", ""))
+        height = float(height_str.replace("cm", ""))
+        return width, height
+
+
+def save_as_svg(directory_path, tiles, width_str, height_str, screen_size):
     import os
 
     if not os.path.exists(directory_path):
@@ -43,12 +48,11 @@ def save_as_svg(directory_path, tiles):
             continue
         file_name = os.path.join(directory_path, f"{i}.svg")
         dwg = svgwrite.Drawing(
-            file_name,
-            profile="tiny",
-            size=(config.SCREEN_SIZE[0], config.SCREEN_SIZE[1]),
+            file_name, profile="basic", size=((width_str, height_str))
         )
+        dwg.viewbox(0, 0, screen_size[0], screen_size[1])
         for t in type_tiles:
-            vertices = [(int(p[0]), int(p[1])) for p in t.points]
+            vertices = [(float(p[0]), float(p[1])) for p in t.points]
             dwg.add(
                 dwg.polygon(
                     points=vertices, fill="#FFFFFF", stroke="black", stroke_width=1
@@ -85,8 +89,8 @@ def create_grid(width, height, tile_size, Tile):
     w_step = tile_size * math.sqrt(3) / 2.0
     h_step = tile_size * 3.0
 
-    for i in range(int(height / w_step) ):
-        for j in range(int(width / h_step) ):
+    for i in range(int(height / w_step)):
+        for j in range(int(width / h_step)):
             x = i * w_step
             y = j * h_step
             if i % 2 == 1:
@@ -95,12 +99,27 @@ def create_grid(width, height, tile_size, Tile):
     return tiles
 
 
-def draw_calibration_ruler(screen):
+def draw_calibration_ruler(screen, SCREEN_SIZE):
+
     ruler_length_cm = config.TILE_SIZE_CM
     pixel_length = ruler_length_cm * config.PIXEL_PER_CM
-    start_pos = (0.5*config.SCREEN_SIZE[0] , config.SCREEN_SIZE[1] - config.UI_PANEL_HEIGHT//2)
-    end_pos = (0.5*config.SCREEN_SIZE[0]+ pixel_length, config.SCREEN_SIZE[1] - config.UI_PANEL_HEIGHT//2)
+    start_pos = (0.5, SCREEN_SIZE[1] - config.UI_PANEL_HEIGHT // 2)
+    end_pos = (
+        0.5 * SCREEN_SIZE[0] + pixel_length,
+        SCREEN_SIZE[1] - config.UI_PANEL_HEIGHT // 2,
+    )
     pygame.draw.line(screen, (0, 0, 0), start_pos, end_pos, 2)
     font = pygame.font.Font(None, 24)
     img = font.render(f"the size of circumcircle:{ruler_length_cm} cm", True, (0, 0, 0))
-    screen.blit(img, (start_pos[0], start_pos[1]+5))
+    screen.blit(img, (start_pos[0], start_pos[1] + 5))
+
+    w,h = get_svg_dimensions(config.SVG_PATH, mode="float")
+    pixel_length =w * config.PIXEL_PER_CM
+    start_pos = (0, SCREEN_SIZE[1] // 2)
+    end_pos = (pixel_length, SCREEN_SIZE[1] // 2)
+    pygame.draw.line(screen, (0, 0, 0), start_pos, end_pos, 2)
+
+    pixel_length = h * config.PIXEL_PER_CM
+    start_pos = (SCREEN_SIZE[0] // 2, 0)
+    end_pos = (SCREEN_SIZE[0] // 2, pixel_length)
+    pygame.draw.line(screen, (0, 0, 0), start_pos, end_pos, 2)
