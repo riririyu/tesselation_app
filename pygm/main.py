@@ -65,9 +65,7 @@ def main():
     tiles = util.create_grid(
         SCREEN_SIZE[1]-config.UI_PANEL_HEIGHT, SCREEN_SIZE[0], config.TILE_SIZE_PIX, tile.HexTile
     )
-    parts=[]
 
-    selected_tile = None
     running = True
     clock = pygame.time.Clock()
     while running:
@@ -79,11 +77,13 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
+            """
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == save_btn:
-                    util.save_data( tiles)
+                    util.save_data( tiles,canvas_handler.parts)
                 elif event.ui_element == load_btn:
                     tiles = util.load_data(tiles)
+            """
 
             manager.process_events(event)
             main_handler.handle_event(event, tiles,canvas_handler)
@@ -102,6 +102,7 @@ def main():
         
         manager.draw_ui(screen)
         util.draw_calibration_ruler(main, SCREEN_SIZE)
+        util.draw_color_legend(main, 10, 10)
         pygame.display.flip()
     pygame.quit()
 

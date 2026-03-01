@@ -64,3 +64,9 @@ class HexTile:
                     self.move(dx, dy)
                     return True
         return False
+    
+    def save(self):
+        return{
+            "center": self.center,
+            "type": self.type
+        }
