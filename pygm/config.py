@@ -8,7 +8,7 @@ CURRENT_DIR = Path(__file__).parent
 JSONPATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.json")
 PDF_PATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.pdf")
 SVG_PATH = Path(PARENT_DIR / "input" / "pattern" / "Dress.svg")
-# output 
+# output
 SAVED_DATA_PATH = Path(CURRENT_DIR / "data.json")
 SVG_OUTPUT_DIR = Path(PARENT_DIR / "svg_output")
 
@@ -27,9 +27,19 @@ TILE_COLOR = {
     8: "#FFC0CB",  # ピンク (Pink)
     9: "#A52A2A",  # 茶色 (Brown)
 }
+TILE_NAME = {
+    "btorso_r",
+    "btorso_l",
+    "ftorso_r",
+    "ftorso_l",
+    "bsleeve_r",
+    "bsleeve_l",
+    "fsleeve_r",
+    "fsleeve_l",
+}
 
 # scale setting
-PIXEL_PER_CM=6.0
+PIXEL_PER_CM = 6.0
 TILE_SIZE_CM = 2.5
 TILE_SIZE_PIX = float(TILE_SIZE_CM * PIXEL_PER_CM)
 
@@ -39,5 +49,5 @@ TILE_SIZE_PIX = float(TILE_SIZE_CM * PIXEL_PER_CM)
 UI_PANEL_HEIGHT = 100
 BUTTON_SIZE = (100, 40)
 
-button_space_width = 1.5*BUTTON_SIZE[0]
-button_space_height = 1.5*BUTTON_SIZE[1]
+button_space_width = 1.5 * BUTTON_SIZE[0]
+button_space_height = 1.5 * BUTTON_SIZE[1]
