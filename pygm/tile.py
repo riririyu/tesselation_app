@@ -2,11 +2,11 @@ import pygame
 import math
 import config
 
-TILE_SIZE = config.TILE_SIZE
+TILE_SIZE = config.TILE_SIZE_PIX
 TILE_COLOR = config.TILE_COLOR
 LINE_COLOR = config.LINE_COLOR
 
-class Tile:
+class QuadTile:
     def __init__(self,x,y,size):
         self.rect = pygame.Rect(x,y,size,size)
     def draw(self,screen):
@@ -18,6 +18,8 @@ class HexTile:
         self.center = (center_x, center_y)
         self.size = size
         self.points = self.calculate_points()
+        self.type = False
+    
     
     def calculate_points(self):
         points=[]
@@ -29,8 +31,22 @@ class HexTile:
         return points
     
     def draw(self, screen):
-        pygame.draw.polygon(screen, TILE_COLOR, self.points)
-        pygame.draw.polygon(screen, LINE_COLOR, self.points, 2)
+        
+        color=pygame.Color(config.TILE_COLOR[self.type])
+        alpha=128
+        size=int(self.size*2.2)
+        temp_surface = pygame.Surface((size, size), pygame.SRCALPHA)
+        local_vertices = [
+            (v[0]-self.center[0]+size/2, v[1]-self.center[1]+size/2) for v in self.calculate_points()
+        ]
+        color.a=alpha
+        pygame.draw.polygon(temp_surface, color, local_vertices)
+        screen.blit(temp_surface,(self.center[0]-size/2, self.center[1]-size/2))
+
+    
+        
+        
+        # pygame.draw.polygon(screen, LINE_COLOR, self.points, 2)
     def is_clicked(self, pos):
         dist=math.hypot(pos[0]-self.center[0], pos[1]-self.center[1])
         return dist < self.size
@@ -48,3 +64,9 @@ class HexTile:
                     self.move(dx, dy)
                     return True
         return False
+    
+    def save(self):
+        return{
+            "center": self.center,
+            "type": self.type
+        }
