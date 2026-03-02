@@ -103,7 +103,7 @@ class CanvasHandler:
         self.parts = []
         self.selected_part = None
         self.current_type = 0
-        
+        self.edge_manager=part.EdgeManager()
 
     def handle_event(self, event):
         mouse_pos = getattr(event, "pos", None)
@@ -128,8 +128,12 @@ class CanvasHandler:
         elif event.type == pygame.MOUSEBUTTONUP and is_inside:
             if event.button == 1:
                 if self.selected_part:
+                    threshold = config.TILE_SIZE_PIX*0.5
+                    self.edge_manager.auto_connect(self.parts, threshold)
                     self.selected_part.is_dragging = False
                     self.selected_part = None
+
+
 
 
 
@@ -141,12 +145,12 @@ class CanvasHandler:
     def draw(self, screen):
         for part in self.parts:
             part.draw(screen)
+        self.edge_manager.draw(screen)
 
     def sync_parts_from_tiles(self, tiles):
         offsets={}
         for p in self.parts:
             offsets[p.type]=p.pos
-        print(offsets)
         self.parts=[]
         for type in range(1, config.NUM_TYPE+1):
             type_tiles = [t for t in tiles if t.type == type]
