@@ -89,6 +89,7 @@ def main():
             main_handler.handle_event(event, tiles,canvas_handler)
             canvas_handler.handle_event(event)
 
+        
         manager.update(time_delta)
 
         # main
