@@ -4,10 +4,6 @@ import numpy as np
 import config
 import fitz
 
-
-
-
-
 def load_pdf_as_surface(pdf_path, page_number=0, scale=1.0):
     doc=fitz.open(pdf_path)
     page=doc.load_page(page_number)

@@ -4,7 +4,8 @@ import tkinter as tk
 from tkinter import filedialog
 import config
 import numpy as np
-import part
+import part_edge
+import math
 
 root = tk.Tk()
 root.withdraw()
@@ -26,6 +27,7 @@ class InputHandler:
             if event.key == pygame.K_r:
                 self._clear_all_tiles(tiles)
                 cvh.parts=[]
+                cvh.edge_manager.clear_edges()
             if event.key == pygame.K_e:
                 ("export to svg")
                 directory_name = tiles[0].__class__.__name__.lower()
@@ -42,18 +44,18 @@ class InputHandler:
                     height * config.PIXEL_PER_CM,
                 )
 
-                util.save_tile_as_svg(
-                    directory_path, tiles, width_str, height_str, screen_size
-                )
+
                 util.save_part_as_svg(
                     directory_path, cvh.parts, width_str, height_str, screen_size
                 )
             if pygame.K_0 <= event.key <= pygame.K_9:
                 self.current_type = event.key - pygame.K_0
             if event.key == pygame.K_s:
-                util.save_data( tiles, cvh.parts)
+                util.save_data( tiles, cvh.parts, cvh.edge_manager.manual_edges)
             if event.key == pygame.K_l:
-                tiles = util.load_data(tiles, cvh)
+                tiles = util.load_data(tiles, cvh,cvh.edge_manager)
+                threshold = config.TILE_SIZE_PIX*0.5
+                cvh.edge_manager.auto_connect(cvh.parts, threshold)
             if event.key == pygame.K_o:
                 cvh.sync_parts_from_tiles(tiles)
 
@@ -103,23 +105,55 @@ class CanvasHandler:
         self.parts = []
         self.selected_part = None
         self.current_type = 0
-        self.edge_manager=part.EdgeManager()
+        self.edge_manager=part_edge.EdgeManager()
+        self.selected_v=None
 
     def handle_event(self, event):
         mouse_pos = getattr(event, "pos", None)
         is_inside = mouse_pos and self.rect.collidepoint(mouse_pos)
         if event.type == pygame.KEYDOWN:
-                if pygame.K_0 <= event.key <= pygame.K_9:
-                    self.current_type = event.key - pygame.K_0
+            if pygame.K_0 <= event.key <= pygame.K_9:
+                self.current_type = event.key - pygame.K_0
+            if event.key == pygame.K_e:
+                directory_name = "hextile"
+                import os
+                directory_path = os.path.join(config.SVG_OUTPUT_DIR, directory_name)
+                util.save_edge_as_json(directory_path, self.edge_manager)
 
         if event.type == pygame.MOUSEBUTTONDOWN and is_inside:
             if event.button == 1:
+                clicked_v = None
+                adjusted_pos=(event.pos[0]-self.rect.x, event.pos[1] -self.rect.y)
+
                 for part in reversed(self.parts):
-                    adjusted_pos=(event.pos[0]-self.rect.x, event.pos[1] -self.rect.y)
+                    print("clicked")
+                    print(f"Selected vertex: {self.selected_v}")
+                    for v_idx, v in enumerate(part.vertices):
+                        dist=math.hypot(v[0]-adjusted_pos[0], v[1]-adjusted_pos[1])
+                        print(dist)
+                        if dist< config.TILE_SIZE_PIX * 0.3:
+                            clicked_v=(part,v_idx)
+                            break
+                if clicked_v:
+                    if self.selected_v is None:
+                        self.selected_v = clicked_v
+                        print(f"Selected vertex: {self.selected_v}")
+                    else:
+                        print(f"Selected vertex already exist")
+                        p1, v1 = self.selected_v
+                        p2, v2 = clicked_v
+                        if p1.type != p2.type:
+                            self.edge_manager.operate_edge_manually(p1,p2,v1, v2)
+                        self.selected_v = None
+                    return
+
+
+                for part in reversed(self.parts):
                     if part.is_clicked(adjusted_pos):
                         self.selected_part = part
                         part.is_dragging = True
                         break
+
         elif event.type == pygame.MOUSEMOTION and is_inside:
             if self.selected_part and self.selected_part.is_dragging:
                 self.selected_part.move(event.rel[0], event.rel[1])
@@ -138,7 +172,7 @@ class CanvasHandler:
 
 
     def add_parts(self,centers,type,pos=(0,0)):
-        part_instance = part.Part(centers, type)
+        part_instance = part_edge.Part(centers, type)
         part_instance.pos = np.array(pos, dtype=float)
         self.parts.append(part_instance)
 
@@ -168,6 +202,6 @@ class CanvasHandler:
             for center in part_data["centers"]:
                 center[0]*=scale_factor
                 center[1]*=scale_factor
-            part_instance = part.Part(part_data["centers"], part_data["type"])
+            part_instance = part_edge.Part(part_data["centers"], part_data["type"])
             part_instance.pos = np.array(part_data["pos"], dtype=float)
             self.parts.append(part_instance)
