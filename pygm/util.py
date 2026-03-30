@@ -61,6 +61,16 @@ def save_tile_as_svg(directory_path, tiles, width_str, height_str, screen_size):
         dwg.save()
         print(f"SVG file saved as {file_name}")
 
+def save_edge_as_json(directory_path, edge_manager):
+    import os
+
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+    filename = os.path.join(directory_path, "edge.json")
+    with open(filename, "w") as f:
+        json.dump(edge_manager.export(), f, indent=4)
+    
+    print(f"JSON file saved as {filename}")
 
 def save_part_as_svg(directory_path, parts, width_str, height_str, screen_size):
     import os
@@ -91,12 +101,13 @@ def save_part_as_svg(directory_path, parts, width_str, height_str, screen_size):
         print(f"SVG file saved as {file_name}")
 
 
-def save_data(tiles, parts):
+def save_data(tiles, parts, edges):
     export_data = {
         "pixel_per_cm": config.PIXEL_PER_CM,
         "size": config.TILE_SIZE_CM,
         "tiles": [],
-        "parts": []
+        "parts": [],
+        "edges": []
     }
     
     for t in tiles:
@@ -104,7 +115,8 @@ def save_data(tiles, parts):
             export_data["tiles"].append(t.save())
     for p in parts:
         export_data["parts"].append(p.save())
-            
+    for e in edges:
+        export_data["edges"].append(e.save())
     with open(config.SAVED_DATA_PATH, "w") as f:
         json.dump(export_data, f, indent=4)
         
@@ -112,7 +124,7 @@ def save_data(tiles, parts):
 
    
 
-def load_data(tiles, canvas_handler):
+def load_data(tiles, canvas_handler, edge_manager):
     filename = config.SAVED_DATA_PATH
     if not filename.exists():
         print(f"File {filename} does not exist.")
@@ -126,6 +138,8 @@ def load_data(tiles, canvas_handler):
     loaded_tiles=sync_tiles(tiles,loaded_content["tiles"], scale_factor)
     parts=loaded_content.get("parts", [])
     canvas_handler.load_parts_data(parts, scale_factor)
+    edges=loaded_content.get("edges", [])
+    edge_manager.load(edges, canvas_handler.parts)
     
     return loaded_tiles
 
